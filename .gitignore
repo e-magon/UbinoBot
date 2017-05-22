@@ -9,7 +9,22 @@
 # git clean -f -d
 # git status
 
-#Ubino Bot
+# To delete entire commit history
+# Checkout:
+# git checkout --orphan latest_branch
+# Commit the changes:
+# git commit -am "commit message"
+# Delete the branch:
+# git branch -D master
+# Rename the current branch to master:
+# git branch -m master
+# Finally, force update your repository:
+# git push -f origin master
+
+
+
+# Ignored files:
+# Ubino Bot
 chat.json
 richieste.txt
 bot.token
