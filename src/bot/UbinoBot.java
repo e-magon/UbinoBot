@@ -32,8 +32,7 @@ public class UbinoBot extends TelegramLongPollingBot {
         try {
             System.out.println(update.getMessage().getVoice().getFileId());
         } catch (Exception e) {System.out.println(e);}
-        */
-        
+        */        
         
         //Controllo per vedere se l'update è un messaggio testuale e che esso non sia vuoto
         if (update.hasMessage() && update.getMessage().hasText()) {
