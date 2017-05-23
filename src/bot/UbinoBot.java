@@ -22,11 +22,12 @@ public class UbinoBot extends TelegramLongPollingBot {
     private final String admin_id = "18200812";
     private final String fileToken = "bot.token";
     private final String fileRichieste = "richieste.txt";
+    private final String fileDatabase = "chat.json";
     
     @Override
     public void onUpdateReceived(Update update) {
         //Salva il mittente se non è presente
-        Database.aggiornaDB(update);
+        Database.aggiornaDB(update, fileDatabase);
         
         /*Istruzione usata per prendere i gli ID dei file e documenti
         try {
@@ -148,7 +149,7 @@ public class UbinoBot extends TelegramLongPollingBot {
             //Controllo che la notifica abbia un testo
             if (finale.length()>0) {
                 //Elenco destinatari dal database
-                String[] destinatari = Database.getDestinatari();
+                String[] destinatari = Database.getDestinatari(fileDatabase);
                 
                 //Per ogni destinatario, invio il messaggio
                 SendMessage messaggio;

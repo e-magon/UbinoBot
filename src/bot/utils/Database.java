@@ -15,10 +15,7 @@ import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.api.objects.User;
 
 public class Database {
-    //Costante con il nome del file del database chat
-    private static final String fileDB = "chat.json";
-    
-    public static void aggiornaDB(Update update) {
+    public static void aggiornaDB(Update update, String fileDatabase) {
         try {
             //Legge informazioni del mittente
             User mittente = update.getMessage().getFrom();
@@ -34,7 +31,7 @@ public class Database {
             //Inizializza a stringa json vuota
             String stringaJSON = "[]";
             try {
-                stringaJSON = readFile(fileDB);
+                stringaJSON = readFile(fileDatabase);
             } catch (Exception e) {}
             
             //Fa il parsing per renderla una lista json
@@ -61,14 +58,14 @@ public class Database {
 
                 lista.add(tmp);
                 
-                saveFile(fileDB, lista.toJSONString());
+                saveFile(fileDatabase, lista.toJSONString());
             }
         } catch (Exception e) {
             System.out.println("Errore aggiornamento db: " + e);
         }
     }
     
-    public static String[] getDestinatari() {
+    public static String[] getDestinatari(String fileDatabase) {
         //Usato per ricavare l'array distinto di chatid conosciute
         String destinatari[] = null;
         //Inizializza a stringa json vuota
@@ -78,7 +75,7 @@ public class Database {
         //Aggiunge ogni chatid salvato all'array inviato al chiamante
         try {
             //Cerca di leggere il file database
-            stringaJSON = readFile(fileDB);
+            stringaJSON = readFile(fileDatabase);
             JSONArray listaJSON = (JSONArray) parser.parse(stringaJSON);
             
             //Dato che le chatid non sono ripetute nel database, la grandezza è
