@@ -11,8 +11,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.telegram.telegrambots.api.methods.send.*;
 import org.telegram.telegrambots.api.objects.Update;
@@ -30,11 +28,12 @@ public class UbinoBot extends TelegramLongPollingBot {
         //Salva il mittente se non è presente
         Database.aggiornaDB(update);
         
-        /* Istruzione usata per prendere i gli ID dei file e documenti
+        /*Istruzione usata per prendere i gli ID dei file e documenti
         try {
             System.out.println(update.getMessage().getVoice().getFileId());
         } catch (Exception e) {System.out.println(e);}
         */
+        
         
         //Controllo per vedere se l'update è un messaggio testuale e che esso non sia vuoto
         if (update.hasMessage() && update.getMessage().hasText()) {
@@ -55,6 +54,10 @@ public class UbinoBot extends TelegramLongPollingBot {
                     
                 case "/audio":
                     cAudio(chat_id);
+                    break;
+                    
+                case "/pls":
+                    cPls(chat_id);
                     break;
                     
                 case "/richiesta":
@@ -180,8 +183,28 @@ public class UbinoBot extends TelegramLongPollingBot {
     //---------------------------
     
     public void cAudio(String chat_id){
-        //Manda l'audio UUUU (fileID: AwADAgADIQADagEhSaaHencTsd2VAg)
-        String fileID = "AwADAgADIQADagEhSaaHencTsd2VAg";
+        //Manda l'audio UUUU
+        //String fileID = "AwADAgADIQADagEhSaaHencTsd2VAg";
+        String fileID = "AwADAgADiQADm40hSZhY87viJvWFAg";
+        
+        //Crea il messaggio
+        SendVoice messaggio = new SendVoice();
+        messaggio.setChatId(chat_id);
+        messaggio.setVoice(fileID);
+        
+        try {
+            //Invia il messaggio all'utente
+            sendVoice(messaggio);
+        } catch (Exception e) {
+            System.out.println("Errore: " + e);
+        }
+    }
+    
+    //---------------------------
+    
+    public void cPls(String chat_id){
+        //Manda l'audio PLS
+        String fileID = "AwADAgADigADm40hSSmVvmznywOZAg";
         
         //Crea il messaggio
         SendVoice messaggio = new SendVoice();
@@ -285,6 +308,7 @@ public class UbinoBot extends TelegramLongPollingBot {
             "Lista comandi:\n" +
             "/aiuta - Visualizza i comandi disponibili\n" +
             "/audio - Mando la mia firma vocale\n" +
+            "/pls - Mando un PLSSS\n" +
             "/richiesta - Puoi inviare una richiesta con scritto cosa vorresti che potessi fare\n" +
             "/echo - Ripeto quello che mi dici";
                 
