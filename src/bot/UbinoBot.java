@@ -484,7 +484,7 @@ public class UbinoBot extends TelegramLongPollingBot {
     
     public void cAiuta(String chat_id){
         //Manda lo stesso messaggio descrizione del bot, quello d'aiuto
-        String testo = "Sono l'assistente virtuale Ube, posso aiutarti in (quasi) tutto.\n" +
+        String testo = "Sono l'assistente virtuale Ubino, posso aiutarti in (quasi) tutto.\n" +
             "\n" +
             "https://github.com/AhabHyde/UbinoBot" +
             "\n" +
@@ -515,6 +515,4 @@ public class UbinoBot extends TelegramLongPollingBot {
             System.out.println("Errore: " + e);
         }
     }
-
-    
 }
