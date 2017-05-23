@@ -25,9 +25,7 @@
 
 # Ignored files:
 # Ubino Bot
-chat.json
-richieste.txt
-bot.token
+files/
 start bot.bat
 
 # NetBeans

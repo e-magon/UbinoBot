@@ -15,14 +15,16 @@ import java.util.Calendar;
 import org.telegram.telegrambots.api.methods.send.*;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 
 public class UbinoBot extends TelegramLongPollingBot {
     //Costanti con il mio id e il nome del file delle richieste
     private final String admin_id = "18200812";
-    private final String fileToken = "bot.token";
-    private final String fileRichieste = "richieste.txt";
-    private final String fileDatabase = "chat.json";
+    private final String fileToken = "files/bot.token";
+    private final String fileRichieste = "files/richieste.txt";
+    private final String fileDatabase = "files/chat.json";
+    private final String fileMemorie = "files/memorie.json";
     
     @Override
     public void onUpdateReceived(Update update) {
@@ -43,21 +45,24 @@ public class UbinoBot extends TelegramLongPollingBot {
             
             //Comandi con slash
             switch(testoMessaggio.split(" ")[0].toLowerCase()) {
+                //Help
                 case "/aiuta":
                     cAiuta(chat_id);
                     break;
                 
-                //Se dovesse venire menzionato
+                //Help se dovesse venire menzionato
                 case "/aiuta@ubinobot":
                     cAiuta(chat_id);
                     break;
 
+                //Comando d'avviamento, uguale a /help
                 case "/start":
                     cAiuta(chat_id);
                     break;
             }
             
-            //Comandi con parola chiave
+            //Comandi con parola chiave in qualsiasi messaggio
+            //PLS
             if(testoMessaggio.toLowerCase().contains("pls") || testoMessaggio.toLowerCase().contains("plz"))
                 cPls(chat_id);
                         
@@ -67,18 +72,42 @@ public class UbinoBot extends TelegramLongPollingBot {
                 //Split per prendere la seconda parola, il comando
                 String comandoChiamato = testoMessaggio.split(" ")[1].toLowerCase();            
                 switch(comandoChiamato) {
+                    //Echo
                     case "ripeti":
                         cEcho(chat_id, testoMessaggio);
                         break;
-
+                        
+                    //Ricordati
+                    case "ricordati":
+                        cSalvaMemoria(chat_id, testoMessaggio);
+                        break;
+                        
+                    //Cosa ti ricordi || Cosa ti ricordi di
+                    case "cosa":
+                        cElencoMemorie(chat_id, testoMessaggio);
+                        break;
+                        
+                    //Dimentica
+                    case "dimentica":
+                        cDimentica(chat_id, testoMessaggio);
+                        break;
+                        
+                    //Dimentica
+                    case "dimenticati":
+                        cDimentica(chat_id, testoMessaggio);
+                        break;
+                        
+                    //Notifica
                     case "notifica":
                         cNotifica(update);
                         break;
 
+                    //Audio UUU
                     case "audio":
                         cAudio(chat_id);
                         break;
 
+                    //Richiesta
                     case "richiesta:":
                         cRichiesta(update);
                         break;
@@ -130,7 +159,7 @@ public class UbinoBot extends TelegramLongPollingBot {
         else {
             messaggio = new SendMessage()
                 .setChatId(chat_id)
-                .setText("Dopo /echo devi scrivere qualcosa.");
+                .setText("Dopo ripeti devi scrivere qualcosa.");
         }
         
         try {
@@ -190,6 +219,151 @@ public class UbinoBot extends TelegramLongPollingBot {
                 }
             }
         }        
+    }
+    
+    //---------------------------
+    
+    public void cSalvaMemoria(String chat_id, String testoMessaggio){
+        //Cose da ricordarsi
+        String nome = "";
+        String descrizione = "";
+        
+        //Imposto il destinatario del messaggio
+        SendMessage risposta = new SendMessage().setChatId(chat_id);
+
+        //Controllo che il comando sia corretto
+        try {
+            if (testoMessaggio.split(" ")[2].toLowerCase().equals ("che") &&
+                    testoMessaggio.split(" ")[4].toLowerCase().equals ("è")) {
+                //Se così fosse salvo il nome e la descrizione
+                nome = testoMessaggio.split(" ")[3];
+                //Vengono salvate tutte le parole rimanenti con uno spazio alla fine per separarle
+                for (int k=5; k<testoMessaggio.split(" ").length; k++)
+                    descrizione += testoMessaggio.split(" ")[k] + " ";
+                //Viene tolto l'ultimo spazio dalla descrizione
+                descrizione = descrizione.substring(0, descrizione.length()-1);
+                
+                //Salva la memoria, e prende l'eventuale descrizione originale salvata
+                String originale = Database.salvaMemoria(nome, descrizione, fileMemorie);
+                //Risponde in base a se era già salvata una entry con quel nome
+                if (originale.equals(""))
+                    risposta.setText("Mi ricorderò che " + nome + " è " + descrizione);
+                else
+                    risposta.setText("Mi ricorderò che " + nome + " è " + descrizione + "\n\n"
+                    + "Prima mi ricordavo che fosse " + originale);
+            }
+            
+        } catch (Exception e) {}
+        
+        try {
+            sendMessage(risposta);
+        } catch (Exception e) {
+            System.out.println("Errore in salvataggio memoria: " + e);
+        }
+    }
+    
+    //---------------------------
+    
+    public void cElencoMemorie(String chat_id, String testoMessaggio){
+        //Imposto il destinatario del messaggio
+        SendMessage risposta = new SendMessage().setChatId(chat_id);
+        String memorie = "";
+        
+        //Controlla la sintassi
+        try {
+            if (testoMessaggio.split(" ")[2].toLowerCase().equals ("ti") &&
+                        testoMessaggio.split(" ")[3].toLowerCase().equals ("ricordi?")) {
+                //Prova a leggere dalla memoria
+                try {
+                    memorie = Database.getElencoMemorie(fileMemorie);
+                } catch (Exception e) {
+                    risposta.setText("Errore nella richiesta delle memorie.");
+                }
+
+                if(memorie.equals(""))
+                    //Se la memoria è vuota
+                    risposta.setText("Non mi ricordo niente!");
+                else
+                    //Altrimenti
+                    risposta.setText("Mi ricordo queste cose:\n" + memorie);
+            }
+
+            //Potrebbe essere una richiesta specifica con un nome se non rispetta i parametri sopra
+            else if(testoMessaggio.split(" ")[4].toLowerCase().equals ("di")) {
+                cGetMemoria(chat_id, testoMessaggio);
+            }
+
+            try {
+                sendMessage(risposta);
+            } catch (TelegramApiException e) {}
+        }
+        catch (Exception e) {}
+    }
+    
+    //---------------------------
+    
+    public void cGetMemoria(String chat_id, String testoMessaggio){
+        //Riceve una singola memoria
+        //Imposto il destinatario del messaggio
+        SendMessage risposta = new SendMessage().setChatId(chat_id);
+        String memoria = "";
+        
+        //Controlla la sintassi
+        if (testoMessaggio.split(" ")[2].toLowerCase().equals ("ti") &&
+                testoMessaggio.split(" ")[3].toLowerCase().equals ("ricordi") &&
+                testoMessaggio.split(" ")[4].toLowerCase().equals ("di") &&
+                testoMessaggio.charAt(testoMessaggio.length() - 1) == '?') {
+            //Salvo il nome richiesto e rimuovo l'ultimo carattere, il ?
+            String nome = testoMessaggio.split(" ")[5].substring(0, testoMessaggio.split(" ")[5].length() - 1);
+            
+            //Prova a leggere dalla memoria
+            try {
+                memoria = Database.getMemoria(fileMemorie, nome);
+            } catch (Exception e) {
+                risposta.setText("Errore nella richiesta della memoria.");
+            }
+                        
+            if(memoria.equals(""))
+                //Se la memoria è vuota
+                risposta.setText("Non mi ricordo niente di " + nome + "!");
+            else
+                //Altrimenti
+                risposta.setText("Mi ricordo che " + nome + " è " + memoria);
+        }
+        
+        try {
+            sendMessage(risposta);
+        } catch (TelegramApiException e) {}
+    }
+    
+    //---------------------------
+    
+    public void cDimentica(String chat_id, String testoMessaggio){
+        //Riceve una singola memoria
+        //Imposto il destinatario del messaggio
+        SendMessage risposta = new SendMessage().setChatId(chat_id);
+        String memoria = "";
+        
+        //Controlla la sintassi
+        String nome = testoMessaggio.split(" ")[2];
+            
+            //Prova a leggere dalla memoria
+            try {
+                memoria = Database.delMemoria(fileMemorie, nome);
+            } catch (Exception e) {
+                risposta.setText("Errore nella cancellazione della memoria.");
+            }
+                        
+            if(memoria.equals(""))
+                //Se la memoria è vuota
+                risposta.setText("Non ho trovato nessuna memoria di " + nome);
+            else
+                //Altrimenti
+                risposta.setText("Fatto. Di " + nome + " mi ricordavo che è " + memoria);
+        
+        try {
+            sendMessage(risposta);
+        } catch (TelegramApiException e) {}
     }
     
     //---------------------------
@@ -296,7 +470,7 @@ public class UbinoBot extends TelegramLongPollingBot {
             //Se la richiesta è vuota
             SendMessage messaggio = new SendMessage()
                 .setChatId(chat_id)
-                .setText("Invia una richiesta valida. Dopo /richiesta devi scrivere qualcosa.");
+                .setText("Invia una richiesta valida. Dopo richiesta: devi scrivere qualcosa.");
 
             try {
                 sendMessage(messaggio);
@@ -315,13 +489,18 @@ public class UbinoBot extends TelegramLongPollingBot {
             "https://github.com/AhabHyde/UbinoBot" +
             "\n" +
             "Ora non posso fare molto, se vuoi suggerirmi qualcosa da imparare scrivi:\n" +
-            "Ubino richiesta: e il tuo suggerimento.\n" +
+            "Ubino richiesta: Il tuo suggerimento.\n" +
             "\n" +
+                
             "Lista comandi (sono tutti case insensitive):\n" +
             "/aiuta - Visualizza i comandi disponibili\n" +
+            "Ubino ricordati che [nome] è [descrizione] - Mi ricordo cosa mi hai detto di quel nome (case sensitive)\n" +
+            "Ubino cosa ti ricordi? - Ti dico tutto quello che mi ricordo\n" +
+            "Ubino cosa ti ricordi di [nome]? - Ripeto cosa mi ricordo di ciò che mi chiedi (case sensitive)\n" +
+            "Ubino dimentica {oppure dimenticati} [nome] - Mi dimentico di quello che mi dici, se me lo ricordo (case sensitive)\n" +
             "Ubino audio - Mando la mia firma vocale\n" +
-            "pls - Appena rilevo un PLS in un messaggio, mando un PLSSS\n" +
-            "Ubino richiesta: - Puoi inviare una richiesta con scritto cosa"
+            "pls {oppure plz} - Appena rilevo un PLS in un messaggio, mando un PLSSS straight outta Adrian\n" +
+            "Ubino richiesta: - Puoi inviare una richiesta con scritto cosa "
             + "vorresti che potessi fare. Ricordati i due punti dopo \"richiesta\"!\n" +
             "Ubino ripeti - Ripeto quello che mi dici";
                 
@@ -336,4 +515,6 @@ public class UbinoBot extends TelegramLongPollingBot {
             System.out.println("Errore: " + e);
         }
     }
+
+    
 }
