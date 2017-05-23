@@ -40,37 +40,49 @@ public class UbinoBot extends TelegramLongPollingBot {
             //Testo e mittente
             String testoMessaggio = update.getMessage().getText();
             String chat_id = "" + update.getMessage().getChatId();
-                        
-            //Split per prendere la prima parola, cioè il comando
-            String comandoChiamato = testoMessaggio.split(" ")[0];            
-            switch(comandoChiamato) {
-                case "/echo":
-                    cEcho(chat_id, testoMessaggio);
-                    break;
-                    
-                case "/notifica":
-                    cNotifica(update);
-                    break;
-                    
-                case "/audio":
-                    cAudio(chat_id);
-                    break;
-                    
-                case "/pls":
-                    cPls(chat_id);
-                    break;
-                    
-                case "/richiesta":
-                    cRichiesta(update);
-                    break;
-                    
+            
+            //Comandi con slash
+            switch(testoMessaggio.split(" ")[0].toLowerCase()) {
                 case "/aiuta":
                     cAiuta(chat_id);
                     break;
-                    
+                
+                //Se dovesse venire menzionato
+                case "/aiuta@ubinobot":
+                    cAiuta(chat_id);
+                    break;
+
                 case "/start":
                     cAiuta(chat_id);
                     break;
+            }
+            
+            //Comandi con parola chiave
+            if(testoMessaggio.toLowerCase().contains("pls") || testoMessaggio.toLowerCase().contains("plz"))
+                cPls(chat_id);
+                        
+            //Comandi con menzione
+            //Split per prendere la prima parola, cioè "Ubino"
+            if (testoMessaggio.split(" ")[0].toLowerCase().equals("ubino")) {
+                //Split per prendere la seconda parola, il comando
+                String comandoChiamato = testoMessaggio.split(" ")[1].toLowerCase();            
+                switch(comandoChiamato) {
+                    case "ripeti":
+                        cEcho(chat_id, testoMessaggio);
+                        break;
+
+                    case "notifica":
+                        cNotifica(update);
+                        break;
+
+                    case "audio":
+                        cAudio(chat_id);
+                        break;
+
+                    case "richiesta:":
+                        cRichiesta(update);
+                        break;
+                }
             }
         }
     }
@@ -104,7 +116,7 @@ public class UbinoBot extends TelegramLongPollingBot {
         //Suddivide la stringa in parole separate da spazi, e parte da 1 (non da 0)
         //per togliere il nome del comando. Poi aggiunge ogni parola alla stringa finale
         String finale = "";
-        for (int k=1; k<testoMessaggio.split(" ").length; k++) {
+        for (int k=2; k<testoMessaggio.split(" ").length; k++) {
             finale += testoMessaggio.split(" ")[k] + " ";
         }
         
@@ -140,7 +152,7 @@ public class UbinoBot extends TelegramLongPollingBot {
         //Suddivide la stringa in parole separate da spazi, e parte da 1 (non da 0)
         //per togliere il nome del comando. Poi aggiunge ogni parola alla stringa finale
         String finale = "";
-        for (int k=1; k<testoMessaggio.split(" ").length; k++) {
+        for (int k=2; k<testoMessaggio.split(" ").length; k++) {
             finale += testoMessaggio.split(" ")[k] + " ";
         }
         
@@ -232,7 +244,7 @@ public class UbinoBot extends TelegramLongPollingBot {
         
         //Suddivide la stringa in parole separate da spazi, e parte da 1 (non da 0)
         //per togliere il nome del comando. Poi aggiunge ogni parola alla stringa finale
-        for (int k=1; k<testoMessaggio.split(" ").length; k++) {
+        for (int k=2; k<testoMessaggio.split(" ").length; k++) {
             finale += testoMessaggio.split(" ")[k] + " ";
         }
         
@@ -303,14 +315,15 @@ public class UbinoBot extends TelegramLongPollingBot {
             "https://github.com/AhabHyde/UbinoBot" +
             "\n" +
             "Ora non posso fare molto, se vuoi suggerirmi qualcosa da imparare scrivi:\n" +
-            "/richiesta e il tuo suggerimento.\n" +
+            "Ubino richiesta: e il tuo suggerimento.\n" +
             "\n" +
-            "Lista comandi:\n" +
+            "Lista comandi (sono tutti case insensitive):\n" +
             "/aiuta - Visualizza i comandi disponibili\n" +
-            "/audio - Mando la mia firma vocale\n" +
-            "/pls - Mando un PLSSS\n" +
-            "/richiesta - Puoi inviare una richiesta con scritto cosa vorresti che potessi fare\n" +
-            "/echo - Ripeto quello che mi dici";
+            "Ubino audio - Mando la mia firma vocale\n" +
+            "pls - Appena rilevo un PLS in un messaggio, mando un PLSSS\n" +
+            "Ubino richiesta: - Puoi inviare una richiesta con scritto cosa"
+            + "vorresti che potessi fare. Ricordati i due punti dopo \"richiesta\"!\n" +
+            "Ubino ripeti - Ripeto quello che mi dici";
                 
         //Invia il messaggio all'utente
         SendMessage message = new SendMessage()
