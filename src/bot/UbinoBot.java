@@ -26,6 +26,17 @@ public class UbinoBot extends TelegramLongPollingBot {
     private final String fileDatabase = "files/chat.json";
     private final String fileMemorie = "files/memorie.json";
     
+    public void onStart() {
+        //Notifica me che è up
+        SendMessage messaggio = new SendMessage()
+                .setChatId(admin_id)
+                .setText("Ci sono!");
+        
+        try {
+            sendMessage(messaggio);
+        } catch (Exception e) {}
+    }
+    
     @Override
     public void onUpdateReceived(Update update) {
         //Salva il mittente se non è presente

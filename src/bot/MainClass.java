@@ -17,6 +17,8 @@ public class MainClass {
             UbinoBot bot = new UbinoBot();
             botsApi.registerBot(bot);
             System.out.println("Bot avviato! @" + bot.getBotUsername());
+            //Notifica me che è up
+            bot.onStart();
         } catch (TelegramApiException e) {
             System.out.println("Errore avvio bot: " + e);
         }
