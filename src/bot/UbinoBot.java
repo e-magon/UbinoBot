@@ -109,7 +109,7 @@ public class UbinoBot extends TelegramLongPollingBot {
                         break;
                         
                     //Notifica
-                    case "notifica":
+                    case "notifica:":
                         cNotifica(update);
                         break;
 
