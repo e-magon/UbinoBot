@@ -15,6 +15,7 @@ public class MainClass {
         // Avvia il bot
         try {
             UbinoBot bot = new UbinoBot();
+            System.out.println("Caricamento del bot @" + bot.getBotUsername() + "...");
             botsApi.registerBot(bot);
             System.out.println("Bot avviato! @" + bot.getBotUsername());
             //Notifica me che è up
