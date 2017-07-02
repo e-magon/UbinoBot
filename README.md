@@ -7,3 +7,5 @@ Questo file deve trovarsi in una cartella chiamata "files/" situata nella cartel
 Creato con la libreria https://github.com/rubenlagus/TelegramBots e SimpleJSON
 
 Made with the library from https://github.com/rubenlagus/TelegramBots and SimpleJSON
+
+Erede spirituale di Ajson ROBOT di rnhmjoj e fazo96
